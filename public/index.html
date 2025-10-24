@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lotería Digital</title>
+<link rel="stylesheet" href="style.css">
+<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<h1>Lotería Digital</h1>
+
+<div id="formulario">
+  <input id="nombreJugador" placeholder="Tu nombre">
+  <input id="salaId" placeholder="ID de la sala">
+  <button id="unirseBtn">Unirse</button>
+</div>
+
+<div id="juego" style="display:none;">
+  <div id="jugadoresConectados"></div>
+  <div id="cartaActual">Carta actual: -</div>
+  <button id="siguienteCartaBtn">Siguiente Carta</button>
+  <div id="tabla"></div>
+  <div id="ganador"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
