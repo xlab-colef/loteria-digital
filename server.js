@@ -13,8 +13,8 @@ const salas = {};
 
 // Baraja ejemplo (puedes reemplazar con tus imágenes)
 const baraja = [
-  "carta1.png", "carta2.png", "carta3.png", "carta4.png",
-  "carta5.png", "carta6.png", "carta7.png", "carta8.png"
+  "carta1.jpeg", "carta2.jpeg", "carta3.jpeg", "carta4.jpeg",
+  "carta5.jpeg", "carta6.jpeg", "carta7.jpeg", "carta8.jpeg"
 ];
 
 io.on("connection", (socket) => {
@@ -67,3 +67,4 @@ io.on("connection", (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+
