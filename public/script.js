@@ -10,12 +10,20 @@ const siguienteCartaBtn = document.getElementById("siguienteCartaBtn");
 const tablaDiv = document.getElementById("tabla");
 const jugadoresConectadosDiv = document.getElementById("jugadoresConectados");
 const ganadorDiv = document.getElementById("ganador");
+const crearSalaBtn = document.getElementById("crearSalaBtn");
 
 let salaId = "";
 let tabla = [];
 let nombreJugador = "";
 
 const baraja = ["carta1.jpeg","carta2.jpeg","carta3.jpeg","carta4.jpeg","carta5.jpeg","carta6.jpeg","carta7.jpeg","carta8.jpeg"];
+
+crearSalaBtn.addEventListener("click", () => {
+  // Generar un ID de sala de 4 dígitos
+  const nuevaSala = Math.floor(1000 + Math.random() * 9000).toString();
+  salaInput.value = nuevaSala;
+  alert("Sala creada: " + nuevaSala + "\nComparte este código con otros jugadores.");
+});
 
 unirseBtn.addEventListener("click", () => {
   nombreJugador = nombreInput.value || "Jugador";
@@ -76,3 +84,4 @@ socket.on("jugadoresActuales", (jugadores) => {
 socket.on("ganador", (nombre) => {
   ganadorDiv.textContent = "¡Ganador: " + nombre + "!";
 });
+
