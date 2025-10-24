@@ -17,7 +17,7 @@ let salaId = "";
 let tabla = [];
 let nombreJugador = "";
 
-const baraja = ["carta1.jpeg","carta2.jpeg","carta3.jpeg","carta4.jpeg","carta5.jpeg","carta6.jpeg","carta7.jpeg","carta8.jpeg"];
+const baraja = ["carta1","carta2","carta3","carta4","carta5","carta6","carta7","carta8"];
 
 
 
@@ -86,5 +86,6 @@ socket.on("jugadoresActuales", (jugadores) => {
 socket.on("ganador", (nombre) => {
   ganadorDiv.textContent = "¡Ganador: " + nombre + "!";
 });
+
 
 
