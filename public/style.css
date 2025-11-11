@@ -13,6 +13,14 @@ body {
   background-color: #FAE5B0;
 }
 
+/* ===== CONTENEDOR GENERAL ===== */
+.contenedor {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 100vh;
+}
+
 /* ===== PANEL IZQUIERDO ===== */
 .sidebar-izquierda {
   display: flex;
@@ -20,12 +28,12 @@ body {
   align-items: center;
   gap: 25px;
   padding: 20px;
-  background-color: #FFD54F; /* Amarillo principal */
+  background-color: #FFD54F;
   background-image:
     radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
     radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
   background-size: 40px 40px;
-  width: 260px;
+  width: 20%;
   height: 100vh;
   box-sizing: border-box;
 }
@@ -33,18 +41,17 @@ body {
 /* Bandera azul con bordes rojos */
 .banner {
   width: 100%;
-  background-color: #1E3A8A; /* Azul oscuro */
+  background-color: #1E3A8A;
   color: white;
   text-align: center;
   padding: 15px;
-  border: 6px solid #E11D48; /* Rojo vibrante */
+  border: 6px solid #E11D48;
   border-radius: 10px;
   position: relative;
   clip-path: polygon(0 0, 100% 0, 100% 90%, 85% 100%, 15% 100%, 0 90%);
   box-shadow: 0 4px 0 #B91C1C;
 }
 
-/* Títulos */
 .banner h2 {
   margin: 0;
   font-size: 1.2rem;
@@ -52,7 +59,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* Texto descriptivo */
 .banner p {
   font-size: 0.9rem;
   margin-top: 10px;
@@ -81,8 +87,8 @@ body {
 }
 
 .mini-tablero {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   background-color: #E5E7EB;
   border: 2px solid white;
   border-radius: 6px;
@@ -100,15 +106,16 @@ body {
 }
 
 /* ===== TABLERO CENTRAL ===== */
-.tablero-container {
+.tablero {
   flex: 1;
+  background-color: #FDE8C8;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #FDE8C8;
+  padding: 20px;
 }
 
-.tablero {
+#cartas {
   display: grid;
   grid-template-columns: repeat(4, 120px);
   grid-template-rows: repeat(4, 160px);
@@ -130,51 +137,68 @@ body {
   transform: scale(1.05);
 }
 
-/* Frijol (pieza colocable) */
-.frijol {
-  width: 40px;
-  height: 40px;
+/* ===== FRIJOL ===== */
+#frijol {
   position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  cursor: grab;
+  z-index: 20;
+}
+
+#frijol img {
+  width: 100%;
   pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 10;
 }
 
 /* ===== PANEL DERECHO ===== */
-.sidebar-derecha {
-  width: 300px;
+.panel-derecho {
+  width: 20%;
   background-color: #E14B1C;
   color: white;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  position: relative;
+  text-align: center;
 }
 
-.sidebar-derecha h2 {
-  font-size: 1.5rem;
+.panel-derecho h2 {
+  font-size: 1.4rem;
   margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.carta-en-juego {
+.carta-actual {
   width: 150px;
   height: 200px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 12px;
-  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
   border: 4px solid white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
 }
 
-.loteria-texto {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  transform: rotate(90deg);
-  font-size: 1.2rem;
-  letter-spacing: 4px;
-  opacity: 0.8;
+.carta-actual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
+
+.titulo-loteria {
+  position: absolute;
+  bottom: 30px;
+  right: -45px;
+  transform: rotate(90deg);
+  font-size: 1.8rem;
+  font-weight: bold;
+  letter-spacing: 4px;
+  opacity: 0.9;
+}
+
+
 
 
 
