@@ -1,91 +1,42 @@
-const socket = io();
+document.addEventListener("DOMContentLoaded", () => {
+  const tablaCartas = document.getElementById("tabla-cartas");
 
-const nombreInput = document.getElementById("nombreJugador");
-const salaInput = document.getElementById("salaId");
-const unirseBtn = document.getElementById("unirseBtn");
-const crearSalaBtn = document.getElementById("crearSalaBtn");
+  // Cartas disponibles (ajusta según tus imágenes)
+  const baraja = [
+    "carta1", "carta2", "carta3", "carta4",
+    "carta5", "carta6", "carta7", "carta8",
+    "carta9", "carta10", "carta11", "carta12",
+    "carta13", "carta14", "carta15", "carta16"
+  ];
 
-const juegoDiv = document.getElementById("juego");
-const cartaActualDiv = document.getElementById("cartaActual");
-const siguienteCartaBtn = document.getElementById("siguienteCartaBtn");
-const tablaDiv = document.getElementById("tabla");
-const jugadoresConectadosDiv = document.getElementById("jugadoresConectados");
-const ganadorDiv = document.getElementById("ganador");
-
-
-let salaId = "";
-let tabla = [];
-let nombreJugador = "";
-
-const baraja = ["carta1","carta2","carta3","carta4","carta5","carta6","carta7","carta8"];
-
-
-
-unirseBtn.addEventListener("click", () => {
-  nombreJugador = nombreInput.value || "Jugador";
-  salaId = salaInput.value || "1234";
-
-  tabla = baraja.slice(0,4); // tabla simplificada
-  mostrarTabla();
-
-  socket.emit("unirseSala", { salaId, nombre: nombreJugador });
-
-  document.getElementById("formulario").style.display = "none";
-  juegoDiv.style.display = "block";
-});
-crearSalaBtn.addEventListener("click", () => {
-  // Generar un ID de sala de 4 dígitos
-  const nuevaSala = Math.floor(1000 + Math.random() * 9000).toString();
-  salaInput.value = nuevaSala;
-  alert("Sala creada: " + nuevaSala + "\nComparte este código con otros jugadores.");
-});
-
-siguienteCartaBtn.addEventListener("click", () => {
-  socket.emit("siguienteCarta", salaId);
-});
-
-function mostrarTabla(){
-  tablaDiv.innerHTML = "";
-  tabla.forEach(carta => {
+  baraja.forEach(carta => {
     const div = document.createElement("div");
     div.classList.add("carta");
 
-    // Crear imagen
     const img = document.createElement("img");
-    img.src = "imagenes/" + carta + ".jpeg"; // ruta de la imagen
+    img.src = `imagenes/${carta}.jpeg`;
     img.alt = carta;
-    img.style.width = "100%";
-    img.style.height = "100%";
+
     div.appendChild(img);
 
-    div.dataset.carta = carta;
     div.addEventListener("click", () => {
-      div.style.border = div.style.border === "3px solid green" ? "1px solid #333" : "3px solid green";
-      socket.emit("marcarCarta", { salaId, carta: div.dataset.carta });
+      const frijol = div.querySelector(".frijol");
+      if (frijol) {
+        frijol.remove(); // quitar frijol si ya está
+      } else {
+        const bean = document.createElement("img");
+        bean.src = "imagenes/frijol.png";
+        bean.classList.add("frijol");
+        div.appendChild(bean);
+      }
     });
-    tablaDiv.appendChild(div);
+
+    tablaCartas.appendChild(div);
   });
-}
-
-
-socket.on("cartaActual", (carta) => {
-  cartaActualDiv.innerHTML = ""; // limpiar
-  const img = document.createElement("img");
-  img.src = "imagenes/" + carta + ".jpeg";
-  img.alt = carta;
-  img.style.width = "120px";
-  img.style.height = "170px";
-  cartaActualDiv.appendChild(img);
 });
 
 
-socket.on("jugadoresActuales", (jugadores) => {
-  jugadoresConectadosDiv.textContent = "Jugadores conectados: " + jugadores.join(", ");
-});
 
-socket.on("ganador", (nombre) => {
-  ganadorDiv.textContent = "¡Ganador: " + nombre + "!";
-});
 
 
 
