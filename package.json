@@ -1,18 +1,15 @@
 {
   "name": "loteria-digital",
   "version": "1.0.0",
-  "description": "Versión digital de la lotería mexicana",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "author": "Equipo Lotería Digital",
-  "license": "MIT"
+    "express": "^4.18.2",
+    "socket.io": "^4.7.5"
+  }
 }
+
 
