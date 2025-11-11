@@ -2,54 +2,53 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Lotería Pokémon</title>
+  <title>Lotería Digital</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="contenedor">
 
-   <!-- PANEL IZQUIERDO -->
-<div class="sidebar-izquierda">
-  <div class="banner como-ganar">
-    <h2>Cómo Ganar</h2>
-    <div class="reglas">
-      <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
-      <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
-      <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
-      <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
+    <!-- PANEL IZQUIERDO -->
+    <div class="sidebar-izquierda">
+      <div class="banner como-ganar">
+        <h2>CÓMO GANAR</h2>
+        <p>Cualquier fila</p>
+        <div class="reglas">
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono">
+        </div>
+      </div>
+
+      <div class="banner oponentes">
+        <h2>OPONENTES</h2>
+        <div class="oponentes-grid">
+          <div class="mini-tablero"></div>
+          <div class="mini-tablero"></div>
+          <div class="mini-tablero"></div>
+          <div class="mini-tablero"></div>
+        </div>
+      </div>
     </div>
-    <p>Cualquier fila</p>
-  </div>
 
-  <div class="banner oponentes">
-    <h2>Oponentes</h2>
-    <div class="oponentes-grid">
-      <div class="mini-tablero"></div>
-      <div class="mini-tablero"></div>
-      <div class="mini-tablero"></div>
-      <div class="mini-tablero"></div>
-    </div>
-  </div>
-</div>
-
-
-    <!-- Tablero principal -->
+    <!-- TABLERO PRINCIPAL -->
     <div class="tablero">
       <div id="cartas"></div>
     </div>
 
-    <!-- Panel Derecho -->
+    <!-- PANEL DERECHO -->
     <div class="panel-derecho">
       <h2>CARTA EN JUEGO</h2>
       <div class="carta-actual">
         <img id="carta-actual" src="imagenes/carta1.jpeg" alt="Carta actual">
       </div>
 
-      <h2 class="titulo-loteria">LOTERÍA</h2>
+      <div class="titulo-loteria">LOTERÍA</div>
     </div>
   </div>
 
-  <!-- Frijol arrastrable -->
+  <!-- FRIJOL ARRASTRABLE -->
   <div id="frijol" draggable="true">
     <img src="imagenes/frijol.png" alt="Frijol">
   </div>
@@ -58,6 +57,8 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
 
