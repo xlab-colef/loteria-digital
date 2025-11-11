@@ -2,45 +2,59 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lotería Digital</title>
+  <title>Lotería Pokémon</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="contenedor">
-    <!-- Panel izquierdo -->
+
+    <!-- Panel Izquierdo -->
     <div class="panel-izquierdo">
-      <div class="titulo">CÓMO GANAR</div>
-      <div class="texto">
-        Marca las cartas conforme vayan saliendo.<br>
-        Gana el primero que complete una línea o toda la tabla.
+      <div class="como-ganar">
+        <h2>CÓMO GANAR</h2>
+        <p>Cualquier fila</p>
+        <div class="fila-ejemplo">
+          <div class="casilla"></div>
+          <div class="casilla"></div>
+          <div class="casilla"></div>
+          <div class="casilla"></div>
+        </div>
       </div>
 
-      <div class="titulo">OPONENTES</div>
-      <ul class="lista-oponentes">
-        <li>Jugador 1</li>
-        <li>Jugador 2</li>
-        <li>Jugador 3</li>
-      </ul>
+      <div class="oponentes">
+        <h2>OPONENTES</h2>
+        <div class="mini-tablero"></div>
+        <div class="mini-tablero"></div>
+      </div>
     </div>
 
-    <!-- Tabla principal -->
+    <!-- Tablero principal -->
     <div class="tablero">
-      <div id="tabla-cartas" class="tabla-cartas"></div>
+      <div id="cartas"></div>
     </div>
 
-    <!-- Panel derecho -->
+    <!-- Panel Derecho -->
     <div class="panel-derecho">
-      <div class="titulo">CARTA EN JUEGO</div>
+      <h2>CARTA EN JUEGO</h2>
       <div class="carta-actual">
-        <img src="imagenes/reverso.jpeg" alt="Carta actual">
+        <img id="carta-actual" src="imagenes/carta1.jpeg" alt="Carta actual">
       </div>
+
+      <h2 class="titulo-loteria">LOTERÍA</h2>
     </div>
   </div>
 
+  <!-- Frijol arrastrable -->
+  <div id="frijol" draggable="true">
+    <img src="imagenes/frijol.png" alt="Frijol">
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
 
