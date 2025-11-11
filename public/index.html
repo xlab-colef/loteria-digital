@@ -1,31 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lotería Digital</title>
-<link rel="stylesheet" href="style.css">
-<script src="/socket.io/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lotería Digital</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Lotería Digital</h1>
+  <div class="contenedor">
+    <!-- Panel izquierdo -->
+    <div class="panel-izquierdo">
+      <div class="titulo">CÓMO GANAR</div>
+      <div class="texto">
+        Marca las cartas conforme vayan saliendo.<br>
+        Gana el primero que complete una línea o toda la tabla.
+      </div>
 
-<div id="formulario">
-  <input id="nombreJugador" placeholder="Tu nombre">
-  <input id="salaId" placeholder="ID de la sala">
-  <button id="unirseBtn">Unirse</button>
-  <button id="crearSalaBtn">Crear sala nueva</button>
-</div>
+      <div class="titulo">OPONENTES</div>
+      <ul class="lista-oponentes">
+        <li>Jugador 1</li>
+        <li>Jugador 2</li>
+        <li>Jugador 3</li>
+      </ul>
+    </div>
 
-<div id="juego" style="display:none;">
-  <div id="jugadoresConectados"></div>
-  <div id="cartaActual">Carta actual: -</div>
-  <button id="siguienteCartaBtn">Siguiente Carta</button>
-  <div id="tabla"></div>
-  <div id="ganador"></div>
-</div>
+    <!-- Tabla principal -->
+    <div class="tablero">
+      <div id="tabla-cartas" class="tabla-cartas"></div>
+    </div>
 
-<script src="script.js"></script>
+    <!-- Panel derecho -->
+    <div class="panel-derecho">
+      <div class="titulo">CARTA EN JUEGO</div>
+      <div class="carta-actual">
+        <img src="imagenes/reverso.jpeg" alt="Carta actual">
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
+
+
 
