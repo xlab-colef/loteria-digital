@@ -1,18 +1,29 @@
-// Servidor simple con Express para Render
-const express = require("express");
-const path = require("path");
-const app = express();
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// Servir archivos estáticos desde la carpeta "public"
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const server = createServer(app);
+const io = new Server(server);
+
 app.use(express.static(path.join(__dirname, "public")));
 
-// Ruta principal
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+io.on("connection", socket => {
+  console.log("Jugador conectado:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Jugador desconectado:", socket.id);
+  });
 });
 
-// Render usa el puerto de entorno
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+
+
 
 
