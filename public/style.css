@@ -76,24 +76,26 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 1px;
+  gap: 2px;
   overflow: hidden;
+  box-shadow: inset 0 0 0 2px #ccc;
 }
 
 /* cada celda dentro del mini tablero */
-.mini-tablero div {
-  background-color: #F3F4F6;
+.mini-tablero .celda {
+  background-color: #F9FAFB;
+  border: 1px solid #D1D5DB;
   position: relative;
 }
 
-/* algunos frijoles marcando progreso */
-.mini-tablero div.marcado::after {
+/* frijol marcando progreso */
+.mini-tablero .celda.marcado::after {
   content: "";
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   background-image: url('imagenes/frijol.png');
   background-size: cover;
   transform: translate(-50%, -50%);
@@ -229,6 +231,8 @@ body {
   .sidebar-izquierda { width: 220px; }
   .panel-derecho { width: 220px; padding: 20px; }
 }
+
+
 
 
 
