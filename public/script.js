@@ -197,7 +197,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 10000);
   });
 
-// Drag & Drop for frijol element (native) frijolEl.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/plain", "frijol"); const crt = frijolEl.cloneNode(true); crt.style.position = "absolute"; crt.style.top = "-9999px"; document.body.appendChild(crt); e.dataTransfer.setDragImage(crt, 20, 20); setTimeout(() => crt.remove(), 0); }); document.addEventListener("dragend", () => { // return frijol to original position frijolEl.style.left = "18px"; frijolEl.style.top = "18px"; }); });
+  // Drag & Drop for frijol element (native)
+  frijolEl.addEventListener("dragstart", (e) => {
+    e.dataTransfer.setData("text/plain", "frijol");
+    const crt = frijolEl.cloneNode(true);
+    crt.style.position = "absolute";
+    crt.style.top = "-9999px";
+    document.body.appendChild(crt);
+    e.dataTransfer.setDragImage(crt, 20, 20);
+    setTimeout(() => crt.remove(), 0);
+  });
+
+  document.addEventListener("dragend", () => {
+    // return frijol to original position
+    frijolEl.style.left = "18px";
+    frijolEl.style.top = "18px";
+  });
+
+});
+
 
 
 
