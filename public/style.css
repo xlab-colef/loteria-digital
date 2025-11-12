@@ -49,9 +49,34 @@ body {
 .reglas { display:flex; justify-content:center; gap:8px; margin-top:8px; }
 .frijol-icono { width:26px; height:26px; }
 
-/* oponentes */
-.oponentes-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:10px; }
-.mini-tablero { width:64px; height:64px; background:#E5E7EB; border:2px solid #fff; border-radius:6px; }
+/* ===== Sección "Oponentes" ===== */
+.oponentes .oponentes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+  justify-items: center;
+}
+
+.mini-tablero {
+  width: 80px;
+  height: 80px;
+  background-color: #E5E7EB;
+  border: 2px solid white;
+  border-radius: 6px;
+  position: relative;
+}
+
+.mini-tablero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px),
+                    linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
 
 /* ===== TABLERO (CENTRO) ===== */
 .tablero {
@@ -181,6 +206,7 @@ body {
   .sidebar-izquierda { width: 220px; }
   .panel-derecho { width: 220px; padding: 20px; }
 }
+
 
 
 
