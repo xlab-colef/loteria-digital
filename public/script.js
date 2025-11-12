@@ -197,65 +197,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 10000);
   });
 
-// === Soporte táctil y de mouse para arrastrar el frijol ===
-const beans = document.querySelectorAll('.frijol');
+// Drag & Drop for frijol element (native) frijolEl.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/plain", "frijol"); const crt = frijolEl.cloneNode(true); crt.style.position = "absolute"; crt.style.top = "-9999px"; document.body.appendChild(crt); e.dataTransfer.setDragImage(crt, 20, 20); setTimeout(() => crt.remove(), 0); }); document.addEventListener("dragend", () => { // return frijol to original position frijolEl.style.left = "18px"; frijolEl.style.top = "18px"; }); });
 
-beans.forEach(bean => {
-  let offsetX, offsetY;
-
-  // --- Mouse ---
-  bean.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', '');
-    bean.classList.add('dragging');
-  });
-
-  bean.addEventListener('dragend', () => {
-    bean.classList.remove('dragging');
-  });
-
-  // --- Táctil ---
-  bean.addEventListener('touchstart', e => {
-    const touch = e.touches[0];
-    const rect = bean.getBoundingClientRect();
-    offsetX = touch.clientX - rect.left;
-    offsetY = touch.clientY - rect.top;
-
-    bean.classList.add('dragging');
-    bean.style.position = 'absolute';
-    bean.style.zIndex = 9999;
-  });
-
-  bean.addEventListener('touchmove', e => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    bean.style.left = `${touch.clientX - offsetX}px`;
-    bean.style.top = `${touch.clientY - offsetY}px`;
-  });
-
-  bean.addEventListener('touchend', e => {
-    bean.classList.remove('dragging');
-    bean.style.zIndex = '';
-
-    // Detecta si se soltó sobre una carta
-    const touch = e.changedTouches[0];
-    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
-
-    if (elem && elem.classList.contains('carta')) {
-      // Marca la carta como seleccionada (ajusta según tu lógica actual)
-      elem.classList.add('marcada');
-      // Si usas un frijol fijo encima:
-      const clone = bean.cloneNode(true);
-      clone.style.position = 'absolute';
-      clone.style.left = '0';
-      clone.style.top = '0';
-      elem.appendChild(clone);
-    }
-
-    // Regresa el frijol original a su posición inicial (opcional)
-    bean.style.left = '';
-    bean.style.top = '';
-  });
-});
 
 
 
