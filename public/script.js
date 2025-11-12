@@ -1,89 +1,205 @@
-// script.js
+// public/script.js
 document.addEventListener("DOMContentLoaded", () => {
   const socket = io();
 
-  // elementos DOM
+  // DOM
   const cartContainer = document.getElementById("cartas");
   const frijolEl = document.getElementById("frijol");
   const cartaActualImg = document.getElementById("carta-actual");
   const miniTableros = Array.from(document.querySelectorAll(".mini-tablero"));
+  const ganadorBanner = document.getElementById("ganador-banner");
 
-  // baraja (asegúrate de tener estas imágenes en public/imagenes)
-  const cartas = [
-    "carta1.jpeg","carta2.jpeg","carta3.jpeg","carta4.jpeg",
-    "carta5.jpeg","carta6.jpeg","carta7.jpeg","carta8.jpeg",
-    "carta9.jpeg","carta10.jpeg","carta11.jpeg","carta12.jpeg",
-    "carta13.jpeg","carta14.jpeg","carta15.jpeg","carta16.jpeg"
-  ];
+  let myBoard = [];      // this player's board (array of 16 filenames)
+  let myMarks = new Set();
+  let roomId = null;
+  let playerName = null;
+  let currentCard = null;
 
-  // obtener nombre y sala (prompt si no está en URL)
-  let urlParams = new URLSearchParams(window.location.search);
-  let playerName = urlParams.get("name") || prompt("Tu nombre:") || ("Jugador" + Math.floor(Math.random()*1000));
-  let roomId = urlParams.get("sala") || prompt("Código de sala (o deja vacío para generar):") || null;
+  // get name/sala from URL or prompt
+  const urlParams = new URLSearchParams(window.location.search);
+  playerName = urlParams.get("name") || prompt("Tu nombre:") || ("Jugador" + Math.floor(Math.random()*1000));
+  roomId = urlParams.get("sala") || prompt("Código de sala (deja vacío para generar):") || null;
+
   if (!roomId) {
     roomId = Math.floor(1000 + Math.random() * 9000).toString();
-    alert("Sala creada: " + roomId + "\nComparte esta URL: " + window.location.href.split("?")[0] + "?sala=" + roomId + "&name=" + encodeURIComponent(playerName));
-    // update URL without reload
+    alert("Sala creada: " + roomId + "\nComparte esta URL: " + window.location.origin + window.location.pathname + "?sala=" + roomId + "&name=" + encodeURIComponent(playerName));
     const newUrl = window.location.origin + window.location.pathname + "?sala=" + roomId + "&name=" + encodeURIComponent(playerName);
     window.history.replaceState({}, "", newUrl);
   } else {
-    // ensure url includes name param too
+    // ensure name in URL
     if (!urlParams.get("name")) {
       const newUrl = window.location.origin + window.location.pathname + "?sala=" + roomId + "&name=" + encodeURIComponent(playerName);
       window.history.replaceState({}, "", newUrl);
     }
   }
 
-  // join the room
+  // join room
   socket.emit("joinRoom", { roomId, name: playerName });
 
-  // crear tablero (cada carta como <div.carta><img/></div>)
-  function crearTablero() {
+  // handle room full
+  socket.on("roomFull", () => {
+    alert("La sala ya tiene 5 jugadores. Intenta otra sala.");
+    // optional: redirect or disable UI
+  });
+
+  // render player's board (myBoard)
+  function renderMyBoard() {
     cartContainer.innerHTML = "";
-    cartas.forEach(name => {
+    myBoard.forEach(cardName => {
       const div = document.createElement("div");
       div.className = "carta";
-      div.dataset.nombre = name;
+      div.dataset.nombre = cardName;
       const img = document.createElement("img");
-      img.src = `imagenes/${name}`;
-      img.alt = name;
-      img.onerror = () => {
-        img.style.objectFit = "contain";
-        img.style.background = "#eee";
-      };
+      img.src = `imagenes/${cardName}`;
+      img.alt = cardName;
       div.appendChild(img);
 
-      // habilitar drop
-      div.addEventListener("dragover", e => e.preventDefault());
+      // enable drop only if this card equals currentCard
+      div.addEventListener("dragover", e => {
+        // allow drop only when currentCard matches this card and not yet marked
+        if (currentCard === cardName && !div.classList.contains("marcada")) {
+          e.preventDefault();
+        }
+      });
+
       div.addEventListener("drop", (e) => {
         e.preventDefault();
-        // marcar localmente y avisar al servidor
-        if (!div.classList.contains("marcada")) {
-          div.classList.add("marcada");
-          socket.emit("markCard", { roomId, cardName: name });
+        // only allow if currentCard matches this card
+        if (currentCard !== cardName) {
+          // silently ignore (or show small feedback)
+          flashInvalid(div);
+          return;
         }
-        // devolver frijol
-        devolverFrijol();
+        if (!div.classList.contains("marcada")) {
+          // mark locally and inform server
+          div.classList.add("marcada");
+          myMarks.add(cardName);
+          socket.emit("markCard", { roomId, cardName });
+        }
       });
 
       cartContainer.appendChild(div);
     });
   }
-  crearTablero();
 
-  // carta actual rotativa (simulada)
-  let idx = 0;
-  setInterval(() => {
-    cartaActualImg.src = `imagenes/${cartas[idx]}`;
-    idx = (idx + 1) % cartas.length;
-  }, 2500);
+  // small feedback for invalid drop
+  function flashInvalid(el) {
+    el.style.transition = "box-shadow 0.12s ease";
+    el.style.boxShadow = "0 0 0 3px rgba(255,0,0,0.5)";
+    setTimeout(() => {
+      el.style.boxShadow = "";
+    }, 300);
+  }
 
-  /* ===== Drag & Drop frijol (native drag) ===== */
-  const frijolOrig = { left: frijolEl.style.left || "18px", top: frijolEl.style.top || "18px" };
+  // mark a card visually by name (used when roomState tells us someone marked)
+  function markCardVisually(cardName, byMe = false) {
+    const cardEls = Array.from(document.querySelectorAll(".carta"));
+    const target = cardEls.find(c => c.dataset.nombre === cardName);
+    if (target && !target.classList.contains("marcada")) {
+      target.classList.add("marcada");
+    }
+  }
 
+  // update mini-tableros (others' progress)
+  function updateMiniTableros(players) {
+    // players: array of {id, name, marks:[], board:[]}
+    const others = players.filter(p => p.name !== playerName);
+    // ensure 4 slots
+    for (let i = 0; i < 4; i++) {
+      const container = miniTableros[i];
+      container.innerHTML = "";
+      if (others[i]) {
+        // small name label
+        const nameEl = document.createElement("div");
+        nameEl.textContent = others[i].name;
+        nameEl.className = "nombre-oponente";
+        container.appendChild(nameEl);
+
+        // build 16 cells showing marks: we'll show a 4x4 visual (no images)
+        for (let c = 0; c < 16; c++) {
+          const cell = document.createElement("div");
+          cell.style.width = "100%";
+          cell.style.height = "100%";
+          cell.style.display = "flex";
+          cell.style.alignItems = "center";
+          cell.style.justifyContent = "center";
+          // if the other player has marked the card at index c of their board, show frijol
+          const theirBoard = others[i].board || [];
+          const markedSet = new Set(others[i].marks || []);
+          if (theirBoard[c] && markedSet.has(theirBoard[c])) {
+            const bean = document.createElement("div");
+            bean.className = "mini-frijol";
+            cell.appendChild(bean);
+          }
+          container.appendChild(cell);
+        }
+      } else {
+        // empty placeholder grid (16 cells)
+        for (let c = 0; c < 16; c++) {
+          const cell = document.createElement("div");
+          cell.style.width = "100%";
+          cell.style.height = "100%";
+          container.appendChild(cell);
+        }
+      }
+    }
+  }
+
+  // listen for roomState from server
+  socket.on("roomState", (state) => {
+    // state = { players: [{id,name,marks,board}], currentCard }
+    if (!state) return;
+    currentCard = state.currentCard || null;
+    if (currentCard) {
+      cartaActualImg.src = `imagenes/${currentCard}`;
+    }
+    // find my player entry
+    const me = state.players.find(p => p.name === playerName && p.board);
+    if (me) {
+      // update my board if changed
+      myBoard = me.board.slice();
+      // re-render board preserving marks where possible
+      // reset myMarks to server value
+      myMarks = new Set(me.marks || []);
+      renderMyBoard();
+      // apply marks visually
+      myMarks.forEach(cardName => markCardVisually(cardName, true));
+    } else {
+      // my board not present yet (maybe join pending)
+      // do nothing until server provides board
+    }
+
+    // update mini-tableros for first 4 others
+    updateMiniTableros(state.players);
+  });
+
+  // updateCard event (optional)
+  socket.on("updateCard", (cardName) => {
+    currentCard = cardName;
+    if (currentCard) {
+      cartaActualImg.src = `imagenes/${currentCard}`;
+    }
+  });
+
+  // invalid mark feedback (server-side)
+  socket.on("invalidMark", ({ cardName, reason }) => {
+    // optional: visual or toast
+    console.warn("Marca inválida:", cardName, reason);
+  });
+
+  // when someone wins, show banner to all
+  socket.on("anunciarGanador", (winnerName) => {
+    ganadorBanner.textContent = `🏆 ${winnerName} ha ganado la LOTERÍA COMPLETA 🏆`;
+    ganadorBanner.style.display = "block";
+    // optionally, flash then hide after a while
+    setTimeout(() => {
+      ganadorBanner.style.display = "none";
+    }, 10000);
+  });
+
+  // Drag & Drop for frijol element (native)
   frijolEl.addEventListener("dragstart", (e) => {
     e.dataTransfer.setData("text/plain", "frijol");
-    // custom drag image (clone)
     const crt = frijolEl.cloneNode(true);
     crt.style.position = "absolute";
     crt.style.top = "-9999px";
@@ -93,113 +209,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.addEventListener("dragend", () => {
-    devolverFrijol();
-  });
-
-  function devolverFrijol() {
-    frijolEl.style.left = frijolOrig.left;
-    frijolEl.style.top = frijolOrig.top;
-  }
-
-  /* ===== Recibir estado de sala y actualizar mini-tableros ===== */
-  socket.on("roomState", (state) => {
-    // state.players = [{id,name,marks:[]}, ...]
-    // remove self from opponents list and map up to 4 slots for others
-    const others = state.players.filter(p => p.name !== playerName);
-    // ensure at most 4
-    const slots = 4;
-    for (let i = 0; i < slots; i++) {
-      const container = miniTableros[i];
-      container.innerHTML = ""; // clear
-      if (others[i]) {
-        // show player name small
-        const nameEl = document.createElement("div");
-        nameEl.textContent = others[i].name;
-        nameEl.style.fontSize = "10px";
-        nameEl.style.color = "#333";
-        nameEl.style.textAlign = "center";
-        nameEl.style.gridColumn = "1 / -1";
-        nameEl.style.alignSelf = "start";
-        container.appendChild(nameEl);
-
-        // Place frijoles according to their marked cards.
-        // Map each cardName deterministically to a cell 0..3
-        const placed = new Set();
-        others[i].marks.forEach(cardName => {
-          const pos = hashStringToIndex(cardName, 4); // 0..3
-          if (placed.has(pos)) return; // one frijol per cell
-          placed.add(pos);
-          const bean = document.createElement("div");
-          bean.className = "mini-frijol";
-          // position via grid: put bean in appropriate cell
-          // each cell is implicit; we create placeholder cells to position correctly
-          // We'll create invisible placeholders so the bean falls into the correct cell
-          // create filler elements up to pos
-          // easier: create a 4-cell array and append in order placing beans where needed
-        });
-
-        // Build 4 cells and place beans in correct cell
-        for (let c = 0; c < 4; c++) {
-          const cell = document.createElement("div");
-          cell.style.width = "100%";
-          cell.style.height = "100%";
-          cell.style.display = "flex";
-          cell.style.justifyContent = "center";
-          cell.style.alignItems = "center";
-          if (placed.has(c)) {
-            const bean = document.createElement("div");
-            bean.className = "mini-frijol";
-            cell.appendChild(bean);
-          }
-          container.appendChild(cell);
-        }
-
-      } else {
-        // empty mini-tablero: draw 4 empty cells
-        for (let c = 0; c < 4; c++) {
-          const cell = document.createElement("div");
-          cell.style.width = "100%";
-          cell.style.height = "100%";
-          container.appendChild(cell);
-        }
-      }
-    }
-  });
-
-  // helper: deterministic map string -> 0..(n-1)
-  function hashStringToIndex(s, n) {
-    let h = 0;
-    for (let i = 0; i < s.length; i++) {
-      h = (h << 5) - h + s.charCodeAt(i);
-      h |= 0;
-    }
-    return Math.abs(h) % n;
-  }
-
-  /* double click on center to clear your marks (for testing) */
-  cartContainer.addEventListener("dblclick", () => {
-    // remove local marks
-    document.querySelectorAll(".carta.marcada").forEach(c => c.classList.remove("marcada"));
-    // notify server to clear all of this player's marks: easiest to unmark individually
-    // (in production you may implement a clear endpoint).
-    // Here we emit unmark for all known cards
-    cartas.forEach(name => {
-      socket.emit("unmarkCard", { roomId, cardName: name });
-    });
-  });
-
-  // optional: click on a marked card to unmark (and notify server)
-  cartContainer.addEventListener("click", (e) => {
-    const tarjeta = e.target.closest(".carta");
-    if (!tarjeta) return;
-    const name = tarjeta.dataset.nombre;
-    if (tarjeta.classList.contains("marcada")) {
-      tarjeta.classList.remove("marcada");
-      socket.emit("unmarkCard", { roomId, cardName: name });
-    }
+    // return frijol to original position
+    frijolEl.style.left = "18px";
+    frijolEl.style.top = "18px";
   });
 
 });
+
+
 
 
 
