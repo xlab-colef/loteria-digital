@@ -29,13 +29,13 @@ body {
   box-sizing: border-box;
 }
 
-/* Bandera azul con bordes rojos */
+/* Banner style (works for Como Ganar and Oponentes header) */
 .banner {
   width: 100%;
   background-color: #1E3A8A;
   color: white;
   text-align: center;
-  padding: 15px;
+  padding: 12px;
   border: 6px solid #E11D48;
   border-radius: 10px;
   position: relative;
@@ -45,12 +45,29 @@ body {
 .banner h2 { margin: 0; font-size: 1.1rem; text-transform: uppercase; }
 .banner p { margin-top: 8px; color: #f0e6ff; }
 
-/* reglas frijol */
 .reglas { display:flex; justify-content:center; gap:8px; margin-top:8px; }
 .frijol-icono { width:26px; height:26px; }
 
-/* ===== Sección "Oponentes" ===== */
-.oponentes .oponentes-grid {
+/* Oponentes block (header & grid combined) */
+.oponentes {
+  width: 100%;
+  text-align: center;
+  margin-top: 6px;
+}
+.oponentes h2 {
+  margin: 0;
+  font-size: 1rem;
+  padding: 8px 0;
+  background: #1E3A8A;
+  color: white;
+  border: 6px solid #E11D48;
+  border-radius: 10px;
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 85% 100%, 15% 100%, 0 90%);
+  box-shadow: 0 4px 0 #B91C1C;
+}
+
+/* grid of mini-tableros */
+.oponentes-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
@@ -58,25 +75,41 @@ body {
   justify-items: center;
 }
 
+/* mini-tablero (2x2) */
 .mini-tablero {
-  width: 80px;
-  height: 80px;
-  background-color: #E5E7EB;
+  width: 78px;
+  height: 78px;
+  background-color: #FBE6A2;
   border: 2px solid white;
   border-radius: 6px;
   position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  overflow: hidden;
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.12);
 }
-
 .mini-tablero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px),
-                    linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px);
+  background-size: 40px 40px;
   pointer-events: none;
 }
 
+/* mini-frijol placed in grid cells */
+.mini-frijol {
+  width: 18px;
+  height: 18px;
+  background-image: url("imagenes/frijol.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  justify-self: center;
+  align-self: center;
+}
 
 /* ===== TABLERO (CENTRO) ===== */
 .tablero {
@@ -88,17 +121,17 @@ body {
   padding: 20px;
 }
 
-/* contenedor de las cartas en grid */
+/* cartas grid */
 #cartas {
   display: grid;
-  grid-template-columns: repeat(4, 140px); /* tamaño de cada carta */
+  grid-template-columns: repeat(4, 140px);
   grid-auto-rows: 180px;
   gap: 16px;
   justify-content: center;
   align-items: center;
 }
 
-/* cada carta usa <img> interno, no background-image */
+/* .carta with internal <img> */
 .carta {
   width: 140px;
   height: 180px;
@@ -106,7 +139,7 @@ body {
   overflow: hidden;
   box-shadow: 0 6px 12px rgba(0,0,0,0.18);
   position: relative;
-  background: #fff; /* marco blanco por detrás */
+  background: #fff;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -115,7 +148,6 @@ body {
 }
 .carta:hover { transform: translateY(-4px); }
 
-/* SI USAS <img> dentro de .carta */
 .carta img {
   width: 100%;
   height: 100%;
@@ -123,7 +155,7 @@ body {
   display: block;
 }
 
-/* marcador frijol posicionado con pseudo-elemento (si prefieres) */
+/* marker on selected */
 .carta.marcada::after {
   content: "";
   position: absolute;
@@ -152,12 +184,7 @@ body {
   position: relative;
 }
 
-.panel-derecho h2 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+.panel-derecho h2 { font-size: 1.2rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
 .carta-actual {
   width: 160px;
@@ -168,12 +195,7 @@ body {
   box-shadow: 0 6px 14px rgba(0,0,0,0.25);
   background: #fff;
 }
-.carta-actual img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display:block;
-}
+.carta-actual img { width: 100%; height: 100%; object-fit: cover; display:block; }
 
 .loteria-texto {
   position: absolute;
@@ -187,7 +209,7 @@ body {
   color: rgba(255,255,255,0.95);
 }
 
-/* ===== FRIJOL ARRASTRABLE (fuera del tablero) ===== */
+/* ===== FRIJOL ARRASTRABLE ===== */
 #frijol {
   position: absolute;
   top: 18px;
@@ -199,13 +221,14 @@ body {
 }
 #frijol img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
 
-/* pequeño ajuste responsive */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1000px) {
   #cartas { grid-template-columns: repeat(4, 110px); grid-auto-rows: 150px; gap: 12px; }
   .carta { width: 110px; height: 150px; }
   .sidebar-izquierda { width: 220px; }
   .panel-derecho { width: 220px; padding: 20px; }
 }
+
 
 
 
