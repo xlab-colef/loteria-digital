@@ -7,14 +7,14 @@ body {
   overflow: hidden;
 }
 
-/* ===== CONTENEDOR PRINCIPAL (3 columnas) ===== */
+/* ===== CONTENEDOR PRINCIPAL ===== */
 .contenedor {
   display: flex;
   height: 100vh;
   width: 100%;
 }
 
-/* ===== PANEL IZQUIERDO (mantenido) ===== */
+/* ===== PANEL IZQUIERDO ===== */
 .sidebar-izquierda {
   display: flex;
   flex-direction: column;
@@ -29,13 +29,13 @@ body {
   box-sizing: border-box;
 }
 
-/* Banner style (works for Como Ganar and Oponentes header) */
+/* Banners */
 .banner {
   width: 100%;
   background-color: #1E3A8A;
   color: white;
   text-align: center;
-  padding: 12px;
+  padding: 15px;
   border: 6px solid #E11D48;
   border-radius: 10px;
   position: relative;
@@ -45,29 +45,20 @@ body {
 .banner h2 { margin: 0; font-size: 1.1rem; text-transform: uppercase; }
 .banner p { margin-top: 8px; color: #f0e6ff; }
 
-.reglas { display:flex; justify-content:center; gap:8px; margin-top:8px; }
-.frijol-icono { width:26px; height:26px; }
-
-/* Oponentes block (header & grid combined) */
-.oponentes {
-  width: 100%;
-  text-align: center;
-  margin-top: 6px;
+/* Frijoles ejemplo */
+.reglas {
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-top:8px;
 }
-.oponentes h2 {
-  margin: 0;
-  font-size: 1rem;
-  padding: 8px 0;
-  background: #1E3A8A;
-  color: white;
-  border: 6px solid #E11D48;
-  border-radius: 10px;
-  clip-path: polygon(0 0, 100% 0, 100% 90%, 85% 100%, 15% 100%, 0 90%);
-  box-shadow: 0 4px 0 #B91C1C;
+.frijol-icono {
+  width:26px;
+  height:26px;
 }
 
-/* grid of mini-tableros */
-.oponentes-grid {
+/* ===== OPONENTES (4 mini-tableros con 4x4 celdas cada uno) ===== */
+.oponentes .oponentes-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
@@ -75,43 +66,40 @@ body {
   justify-items: center;
 }
 
-/* mini-tablero (2x2) */
 .mini-tablero {
-  width: 78px;
-  height: 78px;
-  background-color: #FBE6A2;
+  width: 100px;
+  height: 100px;
+  background-color: #E5E7EB;
   border: 2px solid white;
   border-radius: 6px;
   position: relative;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 1px;
   overflow: hidden;
-  box-shadow: inset 0 0 3px rgba(0,0,0,0.12);
 }
-.mini-tablero::before {
+
+/* cada celda dentro del mini tablero */
+.mini-tablero div {
+  background-color: #F3F4F6;
+  position: relative;
+}
+
+/* algunos frijoles marcando progreso */
+.mini-tablero div.marcado::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background-image: url('imagenes/frijol.png');
+  background-size: cover;
+  transform: translate(-50%, -50%);
 }
 
-/* mini-frijol placed in grid cells */
-.mini-frijol {
-  width: 18px;
-  height: 18px;
-  background-image: url("imagenes/frijol.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-  justify-self: center;
-  align-self: center;
-}
-
-/* ===== TABLERO (CENTRO) ===== */
+/* ===== TABLERO CENTRAL ===== */
 .tablero {
   flex: 1;
   background-color: #FDE8C8;
@@ -121,7 +109,6 @@ body {
   padding: 20px;
 }
 
-/* cartas grid */
 #cartas {
   display: grid;
   grid-template-columns: repeat(4, 140px);
@@ -131,7 +118,6 @@ body {
   align-items: center;
 }
 
-/* .carta with internal <img> */
 .carta {
   width: 140px;
   height: 180px;
@@ -155,7 +141,6 @@ body {
   display: block;
 }
 
-/* marker on selected */
 .carta.marcada::after {
   content: "";
   position: absolute;
@@ -184,7 +169,12 @@ body {
   position: relative;
 }
 
-.panel-derecho h2 { font-size: 1.2rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.panel-derecho h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
 .carta-actual {
   width: 160px;
@@ -195,9 +185,14 @@ body {
   box-shadow: 0 6px 14px rgba(0,0,0,0.25);
   background: #fff;
 }
-.carta-actual img { width: 100%; height: 100%; object-fit: cover; display:block; }
+.carta-actual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display:block;
+}
 
-.loteria-texto {
+.titulo-loteria {
   position: absolute;
   right: -40px;
   bottom: 20px;
@@ -219,7 +214,13 @@ body {
   z-index: 999;
   cursor: grab;
 }
-#frijol img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
+#frijol img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  pointer-events:none;
+}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1000px) {
@@ -228,6 +229,8 @@ body {
   .sidebar-izquierda { width: 220px; }
   .panel-derecho { width: 220px; padding: 20px; }
 }
+
+
 
 
 
