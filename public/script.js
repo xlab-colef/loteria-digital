@@ -8,6 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartaActualImg = document.getElementById("carta-actual");
   const miniTableros = Array.from(document.querySelectorAll(".mini-tablero"));
 
+  // ====== GENERAR LAS CELDAS DE LOS MINI-TABLERO ======
+document.querySelectorAll('.mini-tablero').forEach(tablero => {
+  for (let i = 0; i < 16; i++) {
+    const celda = document.createElement('div');
+    celda.classList.add('celda');
+    tablero.appendChild(celda);
+  }
+});
+
   // baraja (asegúrate de tener estas imágenes en public/imagenes)
   const cartas = [
     "carta1.jpeg","carta2.jpeg","carta3.jpeg","carta4.jpeg",
@@ -200,6 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
+
 
 
 
