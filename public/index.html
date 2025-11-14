@@ -1,67 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lotería Digital</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="contenedor">
 
-    <!-- PANEL IZQUIERDO -->
-    <div class="sidebar-izquierda">
-      <div class="banner como-ganar">
-        <h2>CÓMO GANAR</h2>
-        <p>Cualquier fila</p>
-        <div class="reglas">
-          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
-          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
-          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
-          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
-        </div>
-      </div>
+  <div id="game-container">
 
-      <div class="oponentes">
-        <h2>OPONENTES</h2>
-        <div class="oponentes-grid">
-          <div class="mini-tablero" data-player-slot="0"></div>
-          <div class="mini-tablero" data-player-slot="1"></div>
-          <div class="mini-tablero" data-player-slot="2"></div>
-          <div class="mini-tablero" data-player-slot="3"></div>
-        </div>
-      </div>
-    </div>
+    <!-- PANEL IZQUIERDO (solo nombres, sin cuadrículas) -->
+    <aside id="players-panel">
+      <h2>Jugadores</h2>
+      <ul id="playersList"></ul>
+    </aside>
 
-    <!-- TABLERO PRINCIPAL (aquí se renderiza LA TABLA del jugador actual) -->
-    <div class="tablero">
-      <div id="cartas" aria-label="Tablero del jugador"></div>
-    </div>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main id="main-area">
 
-    <!-- PANEL DERECHO -->
-    <div class="panel-derecho">
-      <h2>CARTA EN JUEGO</h2>
-      <div class="carta-actual">
-        <img id="carta-actual" src="imagenes/carta1.jpeg" alt="Carta en juego" />
-      </div>
-      <div class="titulo-loteria">LOTERÍA</div>
-    </div>
+      <!-- Carta en juego -->
+      <section id="current-card-section">
+        <h2>Carta en juego</h2>
+        <img id="currentCardImage" src="" alt="Carta en juego">
+      </section>
+
+      <!-- Tablero principal del jugador local -->
+      <section id="board-section">
+        <h2>Tu tablero</h2>
+        <div id="playerBoard" class="board-grid"></div>
+      </section>
+
+    </main>
+
   </div>
 
-  <!-- Nota: ya no usamos arrastre del frijol para marcar; dejamos la imagen por estética -->
-  <div id="frijol" title="Frijol decorativo">
-    <img src="imagenes/frijol.png" alt="Frijol" />
-  </div>
-
-  <!-- banner ganador -->
-  <div id="ganador-banner" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:9999; padding:12px 18px; background:#FFD700; color:#000; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.25); font-weight:bold;">
-    GANADOR
-  </div>
-
-  <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
 
