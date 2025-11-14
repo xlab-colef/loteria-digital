@@ -1,63 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Lotería Digital</title>
-    <link rel="stylesheet" href="style.css"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lotería Digital</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-<div class="contenedor">
+  <div class="contenedor">
 
-    <!-- LEFT SIDEBAR -->
+    <!-- PANEL IZQUIERDO -->
     <div class="sidebar-izquierda">
-        <div class="banner como-ganar">
-            <h2>CÓMO GANAR</h2>
-            <p>Cualquier fila</p>
-            <div class="reglas">
-                <img src="imagenes/frijol.png" class="frijol-icono"/>
-                <img src="imagenes/frijol.png" class="frijol-icono"/>
-                <img src="imagenes/frijol.png" class="frijol-icono"/>
-                <img src="imagenes/frijol.png" class="frijol-icono"/>
-            </div>
+      <div class="banner como-ganar">
+        <h2>CÓMO GANAR</h2>
+        <p>Cualquier fila</p>
+        <div class="reglas">
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
+          <img src="imagenes/frijol.png" alt="Frijol" class="frijol-icono" />
         </div>
+      </div>
 
-        <div class="oponentes">
-            <h2>OPONENTES</h2>
-            <div class="oponentes-grid">
-                <div class="mini-tablero" data-player-slot="0"></div>
-                <div class="mini-tablero" data-player-slot="1"></div>
-                <div class="mini-tablero" data-player-slot="2"></div>
-                <div class="mini-tablero" data-player-slot="3"></div>
-            </div>
+      <div class="oponentes">
+        <h2>OPONENTES</h2>
+        <div class="oponentes-grid">
+          <div class="mini-tablero" data-player-slot="0"></div>
+          <div class="mini-tablero" data-player-slot="1"></div>
+          <div class="mini-tablero" data-player-slot="2"></div>
+          <div class="mini-tablero" data-player-slot="3"></div>
         </div>
+      </div>
     </div>
 
     <!-- TABLERO PRINCIPAL -->
     <div class="tablero">
-        <div id="cartas"></div>
+      <div id="cartas"></div>
     </div>
 
     <!-- PANEL DERECHO -->
     <div class="panel-derecho">
-        <h2>CARTA EN JUEGO</h2>
-        <div class="carta-actual">
-            <img id="carta-actual" src="imagenes/carta1.jpeg"/>
-        </div>
-        <div class="titulo-loteria">LOTERÍA</div>
+      <h2>CARTA EN JUEGO</h2>
+      <div class="carta-actual">
+        <img id="carta-actual" src="imagenes/carta1.jpeg" alt="Carta actual" />
+      </div>
+      <div class="titulo-loteria">LOTERÍA</div>
     </div>
-</div>
+  </div>
 
-<!-- FRIJOL -->
-<div id="frijol" draggable="true">
-    <img src="imagenes/frijol.png"/>
-</div>
+  <!-- FRIJOL ARRASTRABLE -->
+  <div id="frijol" draggable="true" title="Arrastra el frijol sobre una carta">
+    <img src="imagenes/frijol.png" alt="Frijol" />
+  </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="script.js"></script>
+  <!-- banner ganador (oculto hasta anunciar) -->
+  <div id="ganador-banner" style="display:none; position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:9999; padding:12px 18px; background:#FFD700; color:#000; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.25); font-weight:bold;">
+    GANADOR
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
 
