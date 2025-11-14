@@ -4,12 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // DOM
   const cartContainer = document.getElementById("cartas");
-  const frijolEl = document.getElementById("frijol");
   const cartaActualImg = document.getElementById("carta-actual");
   const miniTableros = Array.from(document.querySelectorAll(".mini-tablero"));
   const ganadorBanner = document.getElementById("ganador-banner");
 
-  let myBoard = [];
+  let myBoard = [];      // player's 16 cards
   let myMarks = new Set();
   let roomId = null;
   let playerName = null;
@@ -32,44 +31,65 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // join room
   socket.emit("joinRoom", { roomId, name: playerName });
 
+  // room full
   socket.on("roomFull", () => {
     alert("La sala ya tiene 5 jugadores. Intenta otra sala.");
   });
 
+  // Render player's board (4x4)
   function renderMyBoard() {
     cartContainer.innerHTML = "";
+    // grid CSS is handled by style.css; we insert 16 .carta elements
     myBoard.forEach(cardName => {
       const div = document.createElement("div");
       div.className = "carta";
       div.dataset.nombre = cardName;
+
       const img = document.createElement("img");
       img.src = `imagenes/${cardName}`;
       img.alt = cardName;
       div.appendChild(img);
 
-      div.addEventListener("dragover", e => {
-        if (currentCard === cardName && !div.classList.contains("marcada")) {
-          e.preventDefault();
-        }
+      // Click / tap to attempt mark
+      div.addEventListener("click", () => {
+        attemptMark(div, cardName);
       });
 
-      div.addEventListener("drop", (e) => {
-        e.preventDefault();
-        if (currentCard !== cardName) {
-          flashInvalid(div);
-          return;
-        }
-        if (!div.classList.contains("marcada")) {
-          div.classList.add("marcada");
-          myMarks.add(cardName);
-          socket.emit("markCard", { roomId, cardName });
+      // keyboard accessibility (Enter)
+      div.tabIndex = 0;
+      div.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          attemptMark(div, cardName);
         }
       });
 
       cartContainer.appendChild(div);
     });
+
+    // apply local marks visually
+    myMarks.forEach(name => markCardVisually(name));
+  }
+
+  function attemptMark(div, cardName) {
+    // Only allow marking if the card equals currentCard
+    if (!currentCard) {
+      flashInvalid(div);
+      return;
+    }
+    if (cardName !== currentCard) {
+      flashInvalid(div);
+      return;
+    }
+    // if already marked, ignore
+    if (div.classList.contains("marcada")) return;
+
+    // mark locally immediately for snappy UX, server will validate
+    div.classList.add("marcada");
+    myMarks.add(cardName);
+    socket.emit("markCard", { roomId, cardName });
   }
 
   function flashInvalid(el) {
@@ -86,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Update mini-tableros to reflect others' progress (4 slots)
   function updateMiniTableros(players) {
     const others = players.filter(p => p.name !== playerName);
     for (let i = 0; i < 4; i++) {
@@ -97,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         nameEl.className = "nombre-oponente";
         container.appendChild(nameEl);
 
+        // show 4x4 visual grid (we'll append 16 small cells)
         for (let c = 0; c < 16; c++) {
           const cell = document.createElement("div");
           cell.style.width = "100%";
@@ -104,16 +126,20 @@ document.addEventListener("DOMContentLoaded", () => {
           cell.style.display = "flex";
           cell.style.alignItems = "center";
           cell.style.justifyContent = "center";
+
           const theirBoard = others[i].board || [];
           const markedSet = new Set(others[i].marks || []);
+
           if (theirBoard[c] && markedSet.has(theirBoard[c])) {
             const bean = document.createElement("div");
             bean.className = "mini-frijol";
             cell.appendChild(bean);
           }
+
           container.appendChild(cell);
         }
       } else {
+        // empty placeholder grid (16 cells)
         for (let c = 0; c < 16; c++) {
           const cell = document.createElement("div");
           cell.style.width = "100%";
@@ -124,19 +150,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Handle roomState from server (includes players + currentCard)
   socket.on("roomState", (state) => {
     if (!state) return;
     currentCard = state.currentCard || null;
     if (currentCard) {
       cartaActualImg.src = `imagenes/${currentCard}`;
     }
+
+    // find my entry by socket id or name
     const me = state.players.find(p => p.name === playerName && p.board);
     if (me) {
+      // update board & marks
       myBoard = me.board.slice();
       myMarks = new Set(me.marks || []);
       renderMyBoard();
-      myMarks.forEach(cardName => markCardVisually(cardName));
+    } else {
+      // if my board not present yet, wait
     }
+
+    // update mini-tableros with other players (first 4)
     updateMiniTableros(state.players);
   });
 
@@ -145,78 +178,37 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentCard) cartaActualImg.src = `imagenes/${currentCard}`;
   });
 
+  // server says mark invalid -> revert local mark (if any)
   socket.on("invalidMark", ({ cardName, reason }) => {
-    console.warn("Marca inválida:", cardName, reason);
+    // remove visual mark if we optimistically added it
+    const cardEls = Array.from(document.querySelectorAll(".carta"));
+    const target = cardEls.find(c => c.dataset.nombre === cardName);
+    if (target && target.classList.contains("marcada")) {
+      target.classList.remove("marcada");
+    }
+    myMarks.delete(cardName);
+    // optional: show small toast; for now, console
+    console.warn("Marca inválida:", reason);
   });
 
+  // when someone wins
   socket.on("anunciarGanador", (winnerName) => {
     ganadorBanner.textContent = `🏆 ${winnerName} ha ganado la LOTERÍA COMPLETA 🏆`;
     ganadorBanner.style.display = "block";
-    setTimeout(() => {
-      ganadorBanner.style.display = "none";
-    }, 10000);
+    setTimeout(() => { ganadorBanner.style.display = "none"; }, 10000);
   });
 
-  /* === ARRÁSTRE DEL FRIJOL (PC + TÁCTIL) === */
-  let touchActive = false;
-  let offsetX = 0, offsetY = 0;
-
-  // Desktop drag
-  frijolEl.addEventListener("dragstart", (e) => {
-    e.dataTransfer.setData("text/plain", "frijol");
-    const crt = frijolEl.cloneNode(true);
-    crt.style.position = "absolute";
-    crt.style.top = "-9999px";
-    document.body.appendChild(crt);
-    e.dataTransfer.setDragImage(crt, 20, 20);
-    setTimeout(() => crt.remove(), 0);
-  });
-
-  document.addEventListener("dragend", () => {
-    frijolEl.style.left = "18px";
-    frijolEl.style.top = "18px";
-  });
-
-  // Touch support (mobile)
-  frijolEl.addEventListener("touchstart", (e) => {
-    const touch = e.touches[0];
-    const rect = frijolEl.getBoundingClientRect();
-    offsetX = touch.clientX - rect.left;
-    offsetY = touch.clientY - rect.top;
-    touchActive = true;
-    frijolEl.style.transition = "none";
-  });
-
-  document.addEventListener("touchmove", (e) => {
-    if (!touchActive) return;
-    const touch = e.touches[0];
-    frijolEl.style.position = "absolute";
-    frijolEl.style.left = (touch.clientX - offsetX) + "px";
-    frijolEl.style.top = (touch.clientY - offsetY) + "px";
-  });
-
-  document.addEventListener("touchend", (e) => {
-    if (!touchActive) return;
-    touchActive = false;
-    const touch = e.changedTouches[0];
-    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-    const cartaDiv = dropTarget?.closest(".carta");
-    if (cartaDiv) {
-      const cardName = cartaDiv.dataset.nombre;
-      if (currentCard === cardName && !cartaDiv.classList.contains("marcada")) {
-        cartaDiv.classList.add("marcada");
-        myMarks.add(cardName);
-        socket.emit("markCard", { roomId, cardName });
-      } else {
-        flashInvalid(cartaDiv);
-      }
+  // Accessibility: ensure images load fallback
+  document.addEventListener("error", (e) => {
+    if (e.target && e.target.tagName === "IMG") {
+      e.target.style.objectFit = "contain";
+      e.target.style.background = "#eee";
     }
-    // return frijol to base
-    frijolEl.style.left = "18px";
-    frijolEl.style.top = "18px";
-  });
+  }, true);
 
 });
+
+
 
 
 
