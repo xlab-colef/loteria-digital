@@ -1,4 +1,4 @@
-// server.js (ESM)
+// server.js (ES modules)
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -14,7 +14,7 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, "public")));
 
-// ==== Configuración de cartas (ajusta nombres/archivos si tus imágenes son distintas) ====
+// ======= CONFIG: cartas disponibles (asegúrate de tener estas imágenes en public/imagenes) =======
 const ALL_CARDS = [
   "carta1.jpeg","carta2.jpeg","carta3.jpeg","carta4.jpeg",
   "carta5.jpeg","carta6.jpeg","carta7.jpeg","carta8.jpeg",
@@ -22,12 +22,12 @@ const ALL_CARDS = [
   "carta13.jpeg","carta14.jpeg","carta15.jpeg","carta16.jpeg"
 ];
 
-// Estructura rooms:
+// rooms estructura:
 // rooms[roomId] = {
-//   players: { socketId: { id, name, board: [...16 cards], marks: [] } },
-//   drawPile: [...cards left to draw],
-//   currentCard: "cartaX.jpeg",
-//   timer: IntervalOrNull
+//   players: { socketId: { id, name, board: [...16], marks: [...] } },
+//   drawPile: [...cards],
+//   currentCard: "cartaX.jpeg" or null,
+//   timer: IntervalRef or null
 // }
 const rooms = {};
 
@@ -40,21 +40,26 @@ function shuffleArray(arr) {
   return a;
 }
 
-// Start automatic drawing for a room (if not already started)
-function startRoomDrawing(roomId) {
+function drawNextCard(roomId) {
   const room = rooms[roomId];
   if (!room) return;
-  if (room.timer) return; // already running
-
-  // ensure drawPile exists
   if (!room.drawPile || room.drawPile.length === 0) {
     room.drawPile = shuffleArray(ALL_CARDS);
   }
+  room.currentCard = room.drawPile.shift();
+  io.to(roomId).emit("roomState", buildRoomState(roomId));
+  io.to(roomId).emit("updateCard", room.currentCard);
+}
 
-  // draw first card immediately
+function startRoomDrawing(roomId) {
+  const room = rooms[roomId];
+  if (!room) return;
+  if (room.timer) return;
+  // ensure drawPile
+  if (!room.drawPile || room.drawPile.length === 0) room.drawPile = shuffleArray(ALL_CARDS);
+  // draw first immediately
   drawNextCard(roomId);
-
-  // then draw every X ms (5s)
+  // then every 5 seconds
   room.timer = setInterval(() => {
     drawNextCard(roomId);
   }, 5000);
@@ -67,27 +72,12 @@ function stopRoomDrawing(roomId) {
   room.timer = null;
 }
 
-function drawNextCard(roomId) {
-  const room = rooms[roomId];
-  if (!room) return;
-
-  if (!room.drawPile || room.drawPile.length === 0) {
-    room.drawPile = shuffleArray(ALL_CARDS);
-  }
-
-  room.currentCard = room.drawPile.shift();
-  // Broadcast updated state and the card
-  io.to(roomId).emit("roomState", buildRoomState(roomId));
-  io.to(roomId).emit("updateCard", room.currentCard);
-}
-
 io.on("connection", (socket) => {
   console.log("socket connected:", socket.id);
 
   socket.on("joinRoom", ({ roomId, name }) => {
     if (!roomId) return;
 
-    // create room if not exists
     if (!rooms[roomId]) {
       rooms[roomId] = {
         players: {},
@@ -98,15 +88,15 @@ io.on("connection", (socket) => {
     }
 
     const room = rooms[roomId];
-    const playerCount = Object.keys(room.players).length;
-    if (playerCount >= 5) {
+    const currentCount = Object.keys(room.players).length;
+    if (currentCount >= 5) {
       socket.emit("roomFull");
       return;
     }
 
     socket.join(roomId);
 
-    // generate player's board: 16 unique random cards from ALL_CARDS
+    // generate personal board: 16 unique cards from ALL_CARDS
     const board = shuffleArray(ALL_CARDS).slice(0, 16);
 
     room.players[socket.id] = {
@@ -116,10 +106,10 @@ io.on("connection", (socket) => {
       marks: []
     };
 
-    // start drawing automatically for the room if not already
+    // start drawing if not yet started
     startRoomDrawing(roomId);
 
-    // emit state to everyone in room
+    // broadcast state to everyone in room
     io.to(roomId).emit("roomState", buildRoomState(roomId));
     console.log(`${name} joined room ${roomId}`);
   });
@@ -130,25 +120,25 @@ io.on("connection", (socket) => {
     const player = room.players[socket.id];
     if (!player) return;
 
-    // Only allow marking if cardName equals the currentCard for the room
+    // Only allow marking if cardName equals currentCard (server enforces)
     if (!room.currentCard || cardName !== room.currentCard) {
       socket.emit("invalidMark", { cardName, reason: "La carta en juego no coincide." });
       return;
     }
 
-    // Also ensure the card belongs to the player's board
+    // Card must belong to player's board
     if (!player.board.includes(cardName)) {
       socket.emit("invalidMark", { cardName, reason: "La carta no pertenece a tu tablero." });
       return;
     }
 
-    // Only mark if not already marked
+    // Mark if not already marked
     if (!player.marks.includes(cardName)) {
       player.marks.push(cardName);
       io.to(roomId).emit("roomState", buildRoomState(roomId));
     }
 
-    // Check for winner (all 16 marked)
+    // Check win: 16 marks
     if (player.marks.length >= player.board.length) {
       io.to(roomId).emit("anunciarGanador", player.name);
       stopRoomDrawing(roomId);
@@ -169,7 +159,7 @@ io.on("connection", (socket) => {
     sRooms.forEach(r => {
       if (rooms[r] && rooms[r].players && rooms[r].players[socket.id]) {
         delete rooms[r].players[socket.id];
-        // if room empty -> clean up
+        // if room empty -> cleanup
         if (Object.keys(rooms[r].players).length === 0) {
           stopRoomDrawing(r);
           delete rooms[r];
@@ -191,13 +181,14 @@ function buildRoomState(roomId) {
   const players = Object.entries(room.players).map(([id, p]) => ({
     id,
     name: p.name,
-    marks: p.marks.slice(),
-    board: p.board.slice()
+    board: p.board.slice(),
+    marks: p.marks.slice()
   }));
   return { players, currentCard: room.currentCard };
 }
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+
 
 
